@@ -11,7 +11,7 @@
 
 namespace subs {
 
-    enum Action : uint8_t {
+    enum SubStates : uint8_t {
         SENDING,
         SLEEP,
         WAIT,
@@ -21,22 +21,22 @@ namespace subs {
     class Subscriber {
     private:
         size_t m_id = 0;
-        size_t window_to_send = 0;
-        size_t windows_counter = 0;
+        size_t m_window_to_send = 0;
+        size_t m_windows_counter = 0;
 
-        std::list<Packet *> buffer;
-        Action action = WAIT;
+        std::list<Packet *> m_buffer;
+        SubStates m_state = WAIT;
 
 
         size_t m_width_min = 0;
         size_t m_width_max = 0;
         size_t m_width = 0;
 
-        size_t packet_id = 0;
+        size_t m_packet_id = 0;
 
-        size_t current_time = 0;
+        size_t m_current_time = 0;
 
-        double m_delay_sum = 0;
+        double m_delay_sum = 0.0;
         size_t m_number_of_sent = 0;
 
         bool isTrace = false;
@@ -46,21 +46,22 @@ namespace subs {
 
         virtual ~Subscriber();
 
-        Action refresh_buffer(double lambda, size_t time);
+        SubStates nextTime(double lambda, size_t time);
 
-        void sendPacket();
-
-        std::string toString();
+        void send();
 
         void fail();
 
-        Packet success();
+        void success();
 
         double getDelayMean();
 
         size_t getNumberOfSent();
 
+        std::string toString();
+
     };
 
+    const char *toString(SubStates value);
 }
 #endif //INFO_SYS2_SUBSCRIBER_H

@@ -20,5 +20,5 @@ size_t MyRandom::getPuassonValue(double lambda) {
 }
 
 double MyRandom::getRand() {
-    return (double) rand() / RAND_MAX;;
+    return (double) rand() / RAND_MAX;
 }

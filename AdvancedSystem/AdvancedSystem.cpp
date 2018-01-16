@@ -11,30 +11,25 @@ extern bool isLog;
 using namespace asys;
 
 void AdvancedSystem::nextTime() {
-    TRACE printf("Time: %d\n\n", m_time_scale);
+    TRACE printf("Time: %lu\n\n", m_time_scale);
     LOG log2file::out << "Time: " << std::to_string(m_time_scale) << "\n\n";
-    subs::Action action;
-    std::list<size_t> senders;
+    subs::SubStates state;
+    //std::list<size_t> senders;
+    size_t sending_count = 0;
+    size_t firstSenderID = 0;
     for (size_t i = 0; i < m_subscribers.size(); i++) {
-        action = m_subscribers[i]->refresh_buffer(m_lambda / m_subscribers.size(), m_time_scale);
-        if (action == subs::SENDING) senders.push_back(i);
+        state = m_subscribers[i]->nextTime(m_lambda / m_subscribers.size(), m_time_scale);
         TRACE std::cout << m_subscribers[i]->toString();
         LOG log2file::out << m_subscribers[i]->toString();
-    }
-    switch (senders.size()) {
-        case 1: {
-            m_subscribers[senders.front()]->success();
-            break;
-        }
-        default: {
-            std::list<size_t>::iterator node;
-            for (node = senders.begin(); node != senders.end(); node++) {
-                m_subscribers[*node]->fail();
-            }
-            break;
+        if (state == subs::SENDING) {
+            if (sending_count == 0) firstSenderID = i;
+            else m_subscribers[i]->fail();
+            sending_count++;
         }
     }
-    TRACE print_status(senders.size());
+    if (sending_count == 1) m_subscribers[firstSenderID]->success();
+    else m_subscribers[firstSenderID]->fail();
+    TRACE print_status(sending_count);
     TRACE std::cout << "\n";
     m_time_scale++;
 }
@@ -77,6 +72,7 @@ void AdvancedSystem::print_status(size_t size) {
     switch (size) {
         case 0: {
             std::string line1;
+            line1.append("                  +---------+\n");
             line1.append("                  |         |\n");
             line1.append("                  +---------+\n");
             std::cout << line1;
@@ -84,6 +80,7 @@ void AdvancedSystem::print_status(size_t size) {
         }
         case 1: {
             std::string line1;
+            line1.append("                  +---------+\n");
             line1.append("                  | SUCCESS |\n");
             line1.append("                  +---------+\n");
             std::cout << line1;
@@ -91,6 +88,7 @@ void AdvancedSystem::print_status(size_t size) {
         }
         default: {
             std::string line1;
+            line1.append("                  +---------+\n");
             line1.append("                  | FAILURE |\n");
             line1.append("                  +---------+\n");
             std::cout << line1;
@@ -107,9 +105,11 @@ AdvancedResult AdvancedSystem::getResult() {
         double delay_mean = m_subscribers[i]->getDelayMean();
         if (delay_mean == 0) bad_subs++;
         delay_mean_sum += delay_mean;
-        TRACE printf("Delay sum:          %f\n", delay_mean_sum);
+        TRACE printf("Delay mean:          %f\n", delay_mean);
         number_of_sent += m_subscribers[i]->getNumberOfSent();
     }
+    TRACE printf("\n!!!\t Delay mean sum:          %f\n", delay_mean_sum);
+    TRACE printf(  "!!!\t Delay mean mean:         %f\n", delay_mean_sum / (m_subscribers.size() - bad_subs));
     AdvancedResult m_result;
     m_result.lambda = m_lambda;
     m_result.subscribers = m_subscribers.size();

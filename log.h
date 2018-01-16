@@ -2,8 +2,8 @@
 // Created by sfaxi19 on 06.12.17.
 //
 
-#ifndef INFO_SYS2_LOG_H
-#define INFO_SYS2_LOG_H
+#ifndef LOG_H
+#define LOG_H
 
 #include <string>
 #include <fstream>
@@ -15,4 +15,4 @@ namespace log2file {
     extern bool isLog;
     void flush();
 }
-#endif //INFO_SYS2_LOG_H
+#endif //LOG_H

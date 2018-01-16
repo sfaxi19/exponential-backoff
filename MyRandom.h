@@ -2,8 +2,8 @@
 // Created by sfaxi19 on 21.09.17.
 //
 
-#ifndef INFO_SYS2_MYRANDOM_H
-#define INFO_SYS2_MYRANDOM_H
+#ifndef MYRANDOM_H
+#define MYRANDOM_H
 
 #include "iostream"
 
@@ -19,4 +19,4 @@ public:
 };
 
 
-#endif //INFO_SYS2_MYRANDOM_H
+#endif //MYRANDOM_H
